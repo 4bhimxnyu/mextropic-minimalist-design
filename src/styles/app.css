@@ -153,57 +153,19 @@
    — circular, so the grid collapsed and every well computed to 0x0. */
 @media (min-width: 900px) { .qc { grid-template-columns: 352px 1fr; gap: 80px; align-items: start; } }
 .plate { position: relative; display: grid; grid-template-columns: repeat(12, 1fr); gap: 8px; width: 100%; max-width: 352px; }
-.well { aspect-ratio: 1; border-radius: 2px; opacity: 0; transform: scale(.6);
-        transition: opacity .3s var(--ease-out), transform .3s var(--ease-out); transition-delay: var(--d, 0ms); }
-.well.is-in { opacity: 1; transform: none; }
+/* Entry is opacity only. Transform belongs to the cursor proximity effect, and
+   two things animating one property would fight over it. */
+.well { aspect-ratio: 1; border-radius: 2px; opacity: 0;
+        transition: opacity .3s var(--ease-out); transition-delay: var(--d, 0ms); }
+.well.is-in { opacity: 1; }
+/* the scale itself is written inline per well; this only sets how it moves */
+.well { transform-origin: center; transition-property: opacity, transform;
+        transition-duration: .3s, .16s; transition-timing-function: var(--ease-out), var(--ease-out); }
 .well--returned { background: var(--inverted); }
 .well--censored { background: var(--border-strong); }
 .well--failed   { background: var(--accent); }
 
-/* A lens that genuinely follows the pointer. It is a sibling of the grid, so it
-   sits above every well — the occlusion that forced an off-centre lens in Figma
-   does not exist here.
 
-   Built on the supplied glass recipe: a barely-there fill, a heavy backdrop
-   blur, and — the part that actually sells it — layered INSET highlights plus
-   lit top and left edges. Glass reads as glass because of how light catches its
-   edges, not because of the blur. The outer shadow is the one place this system
-   uses one; a lens with no shadow reads as a printed square, not a pane. */
-.plate__lens {
-  position: absolute;
-  width: 112px; height: 112px; margin: -56px 0 0 -56px;
-  border-radius: 20px;
-  pointer-events: none;
-  overflow: hidden;
-  background: rgba(255, 255, 255, 0.05);
-  /* Blur has to suit the scale of what is behind it. The reference used 41px for
-     a large card over imagery; over a 30px-pitch well grid anything past ~6px
-     smears the plate into one flat tone and the lens stops being a lens. 4px
-     frosts it while the grid still reads through. */
-  backdrop-filter: blur(4px) saturate(1.25);
-  -webkit-backdrop-filter: blur(4px) saturate(1.25);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  box-shadow:
-    0 8px 32px rgba(0, 0, 0, 0.10),
-    inset 0 1px 0 rgba(255, 255, 255, 0.5),
-    inset 0 -1px 0 rgba(255, 255, 255, 0.1),
-    inset 0 0 4px 2px rgba(255, 255, 255, 0.2);
-  animation: lensIn .16s var(--ease-out);
-}
-/* a specular sweep along the top edge */
-.plate__lens::before {
-  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,.8), transparent);
-}
-/* and a lit left edge, brightest where it meets the top */
-.plate__lens::after {
-  content: ''; position: absolute; top: 0; left: 0; width: 1px; height: 100%;
-  background: linear-gradient(180deg, rgba(255,255,255,.8), transparent, rgba(255,255,255,.3));
-}
-@keyframes lensIn { from { opacity: 0; transform: scale(.88); } to { opacity: 1; transform: none; } }
-
-/* a magnifier chasing a finger you cannot see is just a flicker */
-@media (hover: none) { .plate__lens { display: none; } }
 
 .qc__legend { display: grid; gap: 18px; align-content: start; max-width: 360px; }
 .qc__id { color: var(--text-muted); font-size: 13px; }
